@@ -1,11 +1,18 @@
 import Content from "./Content"
+import styled from "styled-components";
+
+const Heading = styled.h2`
+    text-align: center;
+`;
+
+
 
 function WashingMachines() {
   return (
       <>
-    <h2>
+    <Heading>
       Wybierz urządzenie
-    </h2>
+    </Heading>
     <Content/>
     </>
   );

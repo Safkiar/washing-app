@@ -1,0 +1,33 @@
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  line-height: 22px;
+  font-family: inherit;
+  background: #fff;
+  color: #000;
+  font-size: 14px;
+  font-weight: 400;
+  font-family: 'Roboto', 'Open Sans', Arial, sans-serif;
+
+}
+
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+input, button, textarea, select {
+  font: inherit;
+}
+

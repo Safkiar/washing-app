@@ -1,6 +1,62 @@
 import { useState, useEffect } from "react";
 import { washingMachines } from "../data/washingMachines";
+import styled from "styled-components";
 import Card from "./Card";
+
+
+const FullWidthSection = styled.section`
+  width: 100%;
+  background: #fff;
+
+`;
+
+const Container = styled.div`
+  max-width: 1200px;   
+  margin: 0 auto;
+  padding: 0 24px;     
+  display: flex;
+  flex-direction: column;
+`;
+
+const Wrapper = styled.div`
+  background: #f8f8f8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const Input = styled.input`
+  max-width: 256px;
+  min-height: 36px;
+  padding: 4px 8px;   
+`;
+
+const Filters = styled.div`
+width: 100%;
+display: flex;
+justify-content: center;
+`
+
+const Filter = styled.div`
+  max-width: 256px;
+  min-height: 36px;   
+  padding: 8px 16px;
+`
+const Results = styled.div`
+  align-self: flex-start; 
+`
+
+const Button = styled.button`
+border:none;
+background-color:inherit;
+margin-bottom: 32px;
+margin-top: 8px;
+color: #007aff;
+
+`
+
+
+
 
 const uniqueEfficiencies = [...new Set(washingMachines.map(m => m.efficiency))];
 const uniqueCapacities   = [...new Set(washingMachines.map(m => m.capacity))];
@@ -55,10 +111,24 @@ export default function Content() {
   const displayedMachines = visibleMachines.slice(0, itemsToShow);
   const sortIcon = sortOrder === "asc" ? "▲" : "▼";
 
-  return (
-    <div>
+    const [visibleRatesCount, setVisibleRatesCount] = useState(3);
 
-      <input
+  useEffect(() => {
+    function handleResize() {
+      const w = window.innerWidth;
+      if (w < 600) setVisibleRatesCount(1);     
+      else if (w < 900) setVisibleRatesCount(2); 
+      else setVisibleRatesCount(3);              
+    }
+    handleResize(); 
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return (
+    <Wrapper>
+
+      <Input
         type="text"
         placeholder="Szukaj po nazwie…"
         value={query}
@@ -66,9 +136,9 @@ export default function Content() {
         style={{ marginBottom: 16 }}
       />
 
-      <div className="filters" style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+      <Filters className="filters" style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
 
-        <div>
+        <Filter>
           <label htmlFor="sort-select"><b>Sortuj po:</b></label>
           <br />
           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -102,9 +172,9 @@ export default function Content() {
               </button>
             )}
           </span>
-        </div>
+        </Filter>
 
-        <div>
+        <Filter>
           <label htmlFor="fn-select"><b>Funkcje:</b></label><br />
           <select
             id="fn-select"
@@ -116,9 +186,9 @@ export default function Content() {
               <option key={f} value={f}>{f}</option>
             ))}
           </select>
-        </div>
+        </Filter>
 
-        <div>
+        <Filter>
           <label htmlFor="eff-select"><b>Klasa energetyczna:</b></label><br />
           <select
             id="eff-select"
@@ -130,9 +200,9 @@ export default function Content() {
               <option key={e} value={e}>{e}</option>
             ))}
           </select>
-        </div>
+        </Filter>
 
-        <div>
+        <Filter>
           <label htmlFor="cap-select"><b>Pojemność:</b></label><br />
           <select
             id="cap-select"
@@ -144,35 +214,31 @@ export default function Content() {
               <option key={c} value={c}>{c}</option>
             ))}
           </select>
-        </div>
-      </div>
+        </Filter>
+      </Filters>
 
 
-      <div style={{ margin: "16px 0", fontWeight: "bold" }}>
+      <Results>
         Liczba wyników: {visibleMachines.length}
-      </div>
+      </Results>
 
-      <div className="card-list" style={{ marginTop: 24, display: "flex", flexWrap: "wrap", gap: 16 }}>
-        {displayedMachines.length
-          ? displayedMachines.map(m => (
-              <Card key={m.id} machine={m} />
-            ))
-          : <p>Brak wyników</p>
-        }
-      </div>
+  <div className="card-list" style={{ marginTop: 24, display: "flex", flexWrap: "wrap", gap: 16 }}>
+  {displayedMachines.length
+    ? displayedMachines.map((m, idx) => (
+        <Card key={m.id} machine={m} showRate={idx < visibleRatesCount} />
+      ))
+    : <p>Brak wyników</p>
+  }
+</div>
 
       {itemsToShow < visibleMachines.length && (
-        <div style={{ textAlign: "center", margin: "24px 0" }}>
-          <button
+          <Button
             onClick={() => setItemsToShow(itemsToShow + 6)}
-            style={{
-              padding: "8px 16px",
-            }}
+  
           >
             Pokaż więcej
-          </button>
-        </div>
+          </Button>
       )}
-    </div>
+    </Wrapper>
   );
 }
