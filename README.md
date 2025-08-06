@@ -1,26 +1,25 @@
 # React + Vite
+I started developing this app on Monday and spent a total of around 12 hours on it (Monday: 3h, Tuesday: 3h, Wednesday: 6h).
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Challenges I encountered:
 
-Currently, two official plugins are available:
+Creating a hover effect for select options – I solved this by using a React library.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Responsiveness of filters – I used CSS Grid instead of Flexbox to ensure the filters display well on smaller screens like iPads and smartphones.
 
-## Expanding the ESLint configuration
+Implementing filtering logic – The first two days were mainly spent on the app’s functionality, while the final day was focused on visual polish and UI improvements.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+I added a button for sorting in both ascending and descending order.
+
+The installment information is displayed based on the screen width: on desktop, three installments are visible; on iPad, two; and on mobile, one. The cards automatically adjust to fit these different screen sizes.
 
 
+code: https://github.com/Safkiar/washing-app
+deploy: https://washing-machines.netlify.app/
 
-Font:
-SamsungOne
-Weight 400
-Size 14px
-Lien height 22px
-letter spaxing 0%
+Mirrored site: https://www.figma.com/design/sqGzmCr1L1UPpUhwOzn4LK/webDevTestTask?node-id=1-1514&t=DzbkbTqnVNRKakrL-0
 
-Kolory:
+
 
 Font:
 #000000
