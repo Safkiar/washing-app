@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { washingMachines } from "../data/washingMachines";
+import { washingMachines } from "../data/Machines";
 import styled from "styled-components";
 import Card from "./Card";
 import Select, { components } from "react-select";
@@ -39,7 +39,7 @@ const Input = styled.input`
   min-width: 200px;
   padding: 2px 8px;
   margin: 0 auto;
-  margin-top: 8px;
+  margin-top: 16px;
   font-size: 12px;
   border: none;
 `;
@@ -63,7 +63,7 @@ const Filter = styled.div`
   font-size: 12px;
   padding: 4px 8px;
   margin: 0 auto;
-
+  position: relative;
   @media (min-width: 739px) {
     grid-template-columns: repeat(2, 1fr);
     padding: 8px 16px;
@@ -88,12 +88,37 @@ const Button = styled.button`
   margin-bottom: 32px;
   margin-top: 8px;
   color: #007aff;
-`;
+  padding: 0 18px;
+  position: relative;
+  cursor:pointer;
+
+    `;
 
 const ButtonArrow = styled.img`
+position: absolute;
+right:0;
+top:40%;
   width: 10px;
   height: 8px;
 `;
+
+const ButtonContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+
+`
+
+const Sorter = styled.div`
+background:none;
+border:none;
+cursor: pointer;
+fontSize: 12px;
+padding: 0;
+position:absolute;
+top:52%;
+left:0%;
+ `
 
 const customSelectStyles = {
   control: (provided) => ({
@@ -231,21 +256,14 @@ export default function Content() {
                 components={{ DropdownIndicator: CustomDropdownIndicator }}
               />
               {sortBy.value !== "popular" && (
-                <button
+                <Sorter
                   type="button"
                   onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: "1.1em",
-                    padding: 0
-                  }}
                   aria-label={`Zmień kierunek sortowania na ${sortOrder === "asc" ? "malejąco" : "rosnąco"}`}
                   title={`Zmień kierunek sortowania na ${sortOrder === "asc" ? "malejąco" : "rosnąco"}`}
                 >
                   {sortIcon}
-                </button>
+                </Sorter>
               )}
             </span>
           </Filter>
@@ -311,11 +329,12 @@ export default function Content() {
 
         {itemsToShow < visibleMachines.length && (
 
-
-     <Button onClick={() => setItemsToShow(itemsToShow + 6)}>
-  Pokaż więcej
-  <ButtonArrow src="/arrow.png" alt="" />
-</Button>
+<ButtonContainer>
+  <Button onClick={() => setItemsToShow(itemsToShow + 6)}>
+    Pokaż więcej
+    <ButtonArrow src="/Poly.svg" alt="" />
+  </Button>
+</ButtonContainer>
 
         )}
       </Wrapper>

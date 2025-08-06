@@ -39,7 +39,7 @@ const Info = styled.b`
 color: black;
 `
 
-const EnClass = styled.p`
+const EnClass = styled.div`
 margin: 16px 0;
 display: flex;
 font-size: 12px;
@@ -121,7 +121,7 @@ const CardButton = styled.button`
   border-radius: 24px;
   margin-bottom: 16px;
   color: white;
-  background: ${({ isSelected }) => (isSelected ? "#1c1c1c" : "#1428A0")};
+  background: ${({ $isSelected }) => ($isSelected ? "#1c1c1c" : "#1428A0")};
 `;
 
 function formatPrice(price) {
@@ -184,7 +184,7 @@ function Card({ machine,showRate, isSelected, onSelect   }) {
             {machine.i_price}
           </Rates>
         )}
-     <CardButton onClick={onSelect} isSelected={isSelected}>
+     <CardButton onClick={onSelect} $isSelected={isSelected}>
       {isSelected ? "WYBRANE" : "WYBIERZ"}
     </CardButton>
     </CardContainer>
