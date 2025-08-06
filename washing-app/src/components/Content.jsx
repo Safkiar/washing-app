@@ -2,61 +2,138 @@ import { useState, useEffect } from "react";
 import { washingMachines } from "../data/washingMachines";
 import styled from "styled-components";
 import Card from "./Card";
-
+import Select, { components } from "react-select";
 
 const FullWidthSection = styled.section`
   width: 100%;
   background: #fff;
-
-`;
-
-const Container = styled.div`
-  max-width: 1200px;   
-  margin: 0 auto;
-  padding: 0 24px;     
-  display: flex;
-  flex-direction: column;
+  background: #f8f8f8;
 `;
 
 const Wrapper = styled.div`
-  background: #f8f8f8;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+`;
+
+const CardGrid = styled.div`
+  margin-top: 8px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 360px));
+  justify-content: center;
+
+  @media (min-width: 769px) {
+    grid-template-columns: repeat(2, 1fr);
+    justify-content: space-between;
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
 `;
 
 const Input = styled.input`
-  max-width: 256px;
-  min-height: 36px;
-  padding: 4px 8px;   
+  min-width: 200px;
+  padding: 2px 8px;
+  margin: 0 auto;
+  margin-top: 8px;
+  font-size: 12px;
+  border: none;
 `;
 
 const Filters = styled.div`
-width: 100%;
-display: flex;
-justify-content: center;
-`
+  width: 100%;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr;
+
+  @media (min-width: 739px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 1025px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+`;
 
 const Filter = styled.div`
-  max-width: 256px;
-  min-height: 36px;   
-  padding: 8px 16px;
-`
+  font-size: 12px;
+  padding: 4px 8px;
+  margin: 0 auto;
+
+  @media (min-width: 739px) {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 8px 16px;
+    margin: 0;
+  }
+`;
+
+const Label = styled.label`
+  font-size: 16px;
+  font-weight: 350;
+`;
+
 const Results = styled.div`
-  align-self: flex-start; 
-`
+  align-self: flex-start;
+  font-size: 12px;
+  padding-left: 14px;
+`;
 
 const Button = styled.button`
-border:none;
-background-color:inherit;
-margin-bottom: 32px;
-margin-top: 8px;
-color: #007aff;
+  border: none;
+  background-color: inherit;
+  margin-bottom: 32px;
+  margin-top: 8px;
+  color: #007aff;
+`;
 
-`
+const ButtonArrow = styled.img`
+  width: 10px;
+  height: 8px;
+`;
 
+const customSelectStyles = {
+  control: (provided) => ({
+    ...provided,
+    minWidth: 206,
+    fontSize: 12,
+    border: "none",
+    boxShadow: "none",
+    backgroundColor: "#fff",
+    padding: "2px 2px",
+    cursor: "pointer",
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isFocused ? "#f0f0f0" : "#fff", 
+    color: "#222", 
+    cursor: "pointer",
+    fontSize: 12,
+  }),
+  singleValue: (provided) => ({
+    ...provided,
+    color: "#222",
+    fontSize: 12,
+  }),
+  menu: (provided) => ({
+    ...provided,
+    zIndex: 9999,
+  }),
+  indicatorSeparator: () => ({ display: "none" }),
+  dropdownIndicator: (provided) => ({
+    ...provided,
+    padding: "0 8px",
+  }),
+};
 
-
+const CustomDropdownIndicator = (props) => (
+  <components.DropdownIndicator {...props}>
+    <img src="/arrow.png" alt="arrow" style={{ width: 14, height: 12 }} />
+  </components.DropdownIndicator>
+);
 
 const uniqueEfficiencies = [...new Set(washingMachines.map(m => m.efficiency))];
 const uniqueCapacities   = [...new Set(washingMachines.map(m => m.capacity))];
@@ -68,31 +145,34 @@ const sortOptions = [
   { value: "capacity", label: "Pojemność" }
 ];
 
-export default function Content() {
-  const [query, setQuery]      = useState("");
-  const [sortBy, setSortBy]    = useState("popular");
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [fn, setFn]            = useState("");
-  const [eff, setEff]          = useState("");
-  const [cap, setCap]          = useState("");
-  const [itemsToShow, setItemsToShow] = useState(6);
 
+const mapOptions = (arr, labelPrefix = "Pokaż wszystkie") =>
+  [{ value: "", label: labelPrefix }, ...arr.map(v => ({ value: v, label: v }))];
+
+export default function Content() {
+  const [query, setQuery]= useState("");
+  const [sortBy, setSortBy] = useState(sortOptions[0]);
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [fn, setFn] = useState({ value: "", label: "Pokaż wszystkie" });
+  const [eff, setEff] = useState({ value: "", label: "Pokaż wszystkie" });
+  const [cap, setCap] = useState({ value: "", label: "Pokaż wszystkie" });
+  const [itemsToShow, setItemsToShow] = useState(6);
+  const [selectedCardId, setSelectedCardId] = useState(null);
+  const [visibleRatesCount, setVisibleRatesCount] = useState(3);
 
   useEffect(() => {
     setItemsToShow(6);
   }, [query, fn, eff, cap, sortBy]);
 
-
   let visibleMachines = washingMachines.filter(m => {
     if (query && !m.name.toLowerCase().includes(query.toLowerCase())) return false;
-    if (fn  && !m.functions.includes(fn)) return false;
-    if (eff && m.efficiency !== eff) return false;
-    if (cap && m.capacity !== Number(cap)) return false;
+    if (fn.value && !m.functions.includes(fn.value)) return false;
+    if (eff.value && m.efficiency !== eff.value) return false;
+    if (cap.value && m.capacity !== Number(cap.value)) return false;
     return true;
   });
 
-
-  switch (sortBy) {
+  switch (sortBy.value) {
     case "price":
       visibleMachines.sort((a, b) =>
         sortOrder === "asc" ? a.price - b.price : b.price - a.price
@@ -107,138 +187,138 @@ export default function Content() {
       break;
   }
 
-
   const displayedMachines = visibleMachines.slice(0, itemsToShow);
   const sortIcon = sortOrder === "asc" ? "▲" : "▼";
-
-    const [visibleRatesCount, setVisibleRatesCount] = useState(3);
 
   useEffect(() => {
     function handleResize() {
       const w = window.innerWidth;
-      if (w < 600) setVisibleRatesCount(1);     
-      else if (w < 900) setVisibleRatesCount(2); 
-      else setVisibleRatesCount(3);              
+      if (w < 738) setVisibleRatesCount(1);
+      else if (w < 1023) setVisibleRatesCount(2);
+      else setVisibleRatesCount(3);
     }
-    handleResize(); 
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return (
-    <Wrapper>
+    <FullWidthSection>
+      <Wrapper>
+        <Input
+          type="text"
+          placeholder="Szukaj…"
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          style={{ marginBottom: 16 }}
+        />
 
-      <Input
-        type="text"
-        placeholder="Szukaj po nazwie…"
-        value={query}
-        onChange={e => setQuery(e.target.value)}
-        style={{ marginBottom: 16 }}
-      />
-
-      <Filters className="filters" style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
-
-        <Filter>
-          <label htmlFor="sort-select"><b>Sortuj po:</b></label>
-          <br />
-          <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <select
-              id="sort-select"
-              value={sortBy}
-              onChange={e => {
-                setSortBy(e.target.value);
-                setSortOrder("asc"); 
-              }}
-            >
-              {sortOptions.map(o => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
-            {sortBy !== "popular" && (
-              <button
-                type="button"
-                onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: "1.1em",
-                  padding: 0
+        <Filters className="filters">
+          <Filter>
+            <Label htmlFor="sort-select"><b>Sortuj po:</b></Label>
+            <br />
+            <span>
+              <Select
+                id="sort-select"
+                value={sortBy}
+                onChange={option => {
+                  setSortBy(option);
+                  setSortOrder("asc");
                 }}
-                aria-label={`Zmień kierunek sortowania na ${sortOrder === "asc" ? "malejąco" : "rosnąco"}`}
-                title={`Zmień kierunek sortowania na ${sortOrder === "asc" ? "malejąco" : "rosnąco"}`}
-              >
-                {sortIcon}
-              </button>
-            )}
-          </span>
-        </Filter>
+                options={sortOptions}
+                styles={customSelectStyles}
+                isSearchable={false}
+                components={{ DropdownIndicator: CustomDropdownIndicator }}
+              />
+              {sortBy.value !== "popular" && (
+                <button
+                  type="button"
+                  onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: "1.1em",
+                    padding: 0
+                  }}
+                  aria-label={`Zmień kierunek sortowania na ${sortOrder === "asc" ? "malejąco" : "rosnąco"}`}
+                  title={`Zmień kierunek sortowania na ${sortOrder === "asc" ? "malejąco" : "rosnąco"}`}
+                >
+                  {sortIcon}
+                </button>
+              )}
+            </span>
+          </Filter>
 
-        <Filter>
-          <label htmlFor="fn-select"><b>Funkcje:</b></label><br />
-          <select
-            id="fn-select"
-            value={fn}
-            onChange={e => setFn(e.target.value)}
-          >
-            <option value="">Pokaż wszystkie</option>
-            {allFunctions.map(f => (
-              <option key={f} value={f}>{f}</option>
-            ))}
-          </select>
-        </Filter>
+          <Filter>
+            <Label htmlFor="fn-select"><b>Funkcje:</b></Label><br />
+            <Select
+              id="fn-select"
+              value={fn}
+              onChange={setFn}
+              options={mapOptions(allFunctions)}
+              styles={customSelectStyles}
+              isSearchable={false}
+              components={{ DropdownIndicator: CustomDropdownIndicator }}
+            />
+          </Filter>
 
-        <Filter>
-          <label htmlFor="eff-select"><b>Klasa energetyczna:</b></label><br />
-          <select
-            id="eff-select"
-            value={eff}
-            onChange={e => setEff(e.target.value)}
-          >
-            <option value="">Pokaż wszystkie</option>
-            {uniqueEfficiencies.map(e => (
-              <option key={e} value={e}>{e}</option>
-            ))}
-          </select>
-        </Filter>
+          <Filter>
+            <Label htmlFor="eff-select"><b>Klasa energetyczna:</b></Label><br />
+            <Select
+              id="eff-select"
+              value={eff}
+              onChange={setEff}
+              options={mapOptions(uniqueEfficiencies)}
+              styles={customSelectStyles}
+              isSearchable={false}
+              components={{ DropdownIndicator: CustomDropdownIndicator }}
+            />
+          </Filter>
 
-        <Filter>
-          <label htmlFor="cap-select"><b>Pojemność:</b></label><br />
-          <select
-            id="cap-select"
-            value={cap}
-            onChange={e => setCap(e.target.value)}
-          >
-            <option value="">Pokaż wszystkie</option>
-            {uniqueCapacities.map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-        </Filter>
-      </Filters>
+          <Filter>
+            <Label htmlFor="cap-select"><b>Pojemność:</b></Label><br />
+            <Select
+              id="cap-select"
+              value={cap}
+              onChange={setCap}
+              options={mapOptions(uniqueCapacities)}
+              styles={customSelectStyles}
+              isSearchable={false}
+              components={{ DropdownIndicator: CustomDropdownIndicator }}
+            />
+          </Filter>
+        </Filters>
+
+        <Results>
+          Liczba wyników: {visibleMachines.length}
+        </Results>
+
+        <CardGrid>
+          {displayedMachines.length
+            ? displayedMachines.map((m, idx) => (
+                <Card
+                  key={m.id}
+                  machine={m}
+                  showRate={idx < visibleRatesCount}
+                  isSelected={selectedCardId === m.id}
+                  onSelect={() => setSelectedCardId(m.id)}
+                />
+              ))
+            : <p>Brak wyników</p>
+          }
+        </CardGrid>
+
+        {itemsToShow < visibleMachines.length && (
 
 
-      <Results>
-        Liczba wyników: {visibleMachines.length}
-      </Results>
+     <Button onClick={() => setItemsToShow(itemsToShow + 6)}>
+  Pokaż więcej
+  <ButtonArrow src="/arrow.png" alt="" />
+</Button>
 
-  <div className="card-list" style={{ marginTop: 24, display: "flex", flexWrap: "wrap", gap: 16 }}>
-  {displayedMachines.length
-    ? displayedMachines.map((m, idx) => (
-        <Card key={m.id} machine={m} showRate={idx < visibleRatesCount} />
-      ))
-    : <p>Brak wyników</p>
-  }
-</div>
-
-      {itemsToShow < visibleMachines.length && (
-          <Button
-            onClick={() => setItemsToShow(itemsToShow + 6)}
-  
-          >
-            Pokaż więcej
-          </Button>
-      )}
-    </Wrapper>
+        )}
+      </Wrapper>
+    </FullWidthSection>
   );
 }
